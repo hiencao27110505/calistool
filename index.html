@@ -263,7 +263,8 @@ dialog.sheet.full .bar { padding-top: calc(4px + var(--safe-t)); }
 .bar .btn.plain svg { width: 10px; height: 18px; margin-right: -2px; }
 .prog { height: 3px; margin: 0 16px; border-radius: 2px; background: var(--fill2); flex: none; overflow: hidden; }
 .prog i { display: block; height: 100%; border-radius: 2px; background: var(--tint); transition: width 0.25s; }
-.sheet-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 12px 16px 20px; }
+.sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 12px 16px 20px; }
+.sheet-body:last-child { padding-bottom: calc(20px + var(--safe-b)); }
 .sheet-foot { flex: none; display: grid; gap: 8px; padding: 10px 16px calc(12px + var(--safe-b)); }
 .q-title { font-size: 28px; line-height: 1.15; font-weight: 700; margin: 6px 0 6px; }
 .q-sub { color: var(--label2); margin-bottom: 18px; }
