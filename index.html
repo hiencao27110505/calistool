@@ -11,6 +11,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Ladder">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23007aff'/%3E%3Cpath d='M14 16h36M32 16v8' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='29' r='5' fill='%23fff'/%3E%3Cpath d='M32 36v12l4 8' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 :root {
@@ -1209,8 +1211,19 @@ dialog.sheet.full .bar { padding-top: calc(4px + var(--safe-t)); }
     S = { list: rows().map(function (row) { var lvl = levelOf(row.id); return { row: row, lvl: lvl, id: row.ex[lvl] }; }), i: 0, round: 1, count: 0, phase: 'intro', t0: Date.now() };
     renderSes();
     ses.showModal();
+    keepAwake();
   });
-  ses.addEventListener('close', stopClock);
+  // Keep the screen on while a session is open, where the browser allows it
+  var wake = null;
+  function keepAwake() {
+    if (!navigator.wakeLock || !ses.open) return;
+    navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () { /* not allowed right now */ });
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') keepAwake(); });
+  ses.addEventListener('close', function () {
+    stopClock();
+    if (wake) { wake.release().catch(function () {}); wake = null; }
+  });
 
   // Go
   render();
@@ -1233,6 +1246,8 @@ dialog.sheet.full .bar { padding-top: calc(4px + var(--safe-t)); }
     rows().forEach(function (row) { var i = row.ex.indexOf(params.get('open')); if (i >= 0) showDetail(row, i); });
   }
   if (frozen === null && !reduce) requestAnimationFrame(tick);
+  // Installable and usable offline when served over http(s)
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(function () { /* offline support is optional */ });
 })();
 </script>
 </body>
